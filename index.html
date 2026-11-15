@@ -110,13 +110,14 @@ canvas.gone{opacity:0;pointer-events:none}
 
   <section class="rules" aria-labelledby="rules-h">
     <h2 id="rules-h">Regeln</h2>
-    <p>Das Los bestimmt den Bonus für den Monat. Er liegt zwischen 25 und 85 €.</p>
+    <p>Das Los bestimmt den Bonus für den Monat. Er liegt zwischen 50 und 200 €.</p>
     <p>Unabhängig vom Los trägt der Sklave:</p>
     <ul>
       <li>die Kosten für die Nägel</li>
       <li>die Zigarettenkosten</li>
     </ul>
     <p>Sie können den Sklaven jederzeit gemäß der CNC-Vereinbarung weiter melken. Voraussetzung ist, dass Sie ihn so erfolgreich teasen, dass er gar nicht anders will, als zu zahlen.</p>
+    <p>Ruft der Sklave „Limit“, können nicht gezahlte Beträge als Schulden in den nächsten Monat übertragen werden.</p>
   </section>
   <button class="reset" id="reset" type="button">Zurücksetzen</button>
   <div class="pw" id="pw" hidden>
@@ -130,7 +131,7 @@ canvas.gone{opacity:0;pointer-events:none}
 
 <script>
 (function(){
-  var MIN=25,MAX=85;
+  var MIN=50,MAX=200;
   var now=new Date();
   var key='monatslos:v2:'+now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
   var monthLabel=now.toLocaleDateString('de-DE',{month:'long',year:'numeric'});
@@ -163,7 +164,7 @@ canvas.gone{opacity:0;pointer-events:none}
   document.getElementById('month').textContent=monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1);
 
   var st=load()||{amount:null,done:false};
-  if(st.amount!=null&&st.amount>MAX){wipe();st={amount:null,done:false}}
+  if(st.amount!=null&&(st.amount>MAX||st.amount<MIN)){wipe();st={amount:null,done:false}}
   var amount=st.amount,done=!!st.done,started=false,drawing=false,last=null,lastCheck=0;
 
   function setup(){
