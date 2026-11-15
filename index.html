@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Monatslos</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#f7ece4;--bg2:#ecd6cb;--ink:#2b0d14;--muted:#7c5560;--gold:#8a6218;--gold2:#c9a14a;--plate:#fff7ee;--shadow:rgba(60,20,30,.25);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#1a070d;--bg2:#321019;--ink:#f4e9dc;--muted:#b69aa0;--gold:#d4ac5b;--gold2:#8f6a24;--plate:#120509;--shadow:rgba(0,0,0,.6)}
+}
+:root[data-theme="dark"]{--bg:#1a070d;--bg2:#321019;--ink:#f4e9dc;--muted:#b69aa0;--gold:#d4ac5b;--gold2:#8f6a24;--plate:#120509;--shadow:rgba(0,0,0,.6)}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;min-height:100%;display:flex;align-items:center;justify-content:center;
+  padding:28px 20px;color:var(--ink);
+  background:radial-gradient(120% 80% at 50% 0%,var(--bg2),var(--bg) 70%) var(--bg);
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+main{width:100%;max-width:440px;text-align:center}
+h1{
+  margin:0;font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  font-weight:700;font-size:clamp(46px,14vw,64px);line-height:1;letter-spacing:.01em;color:var(--gold);
+}
+.month{margin:.5rem 0 0;font-family:"Cormorant Garamond",Georgia,serif;font-size:1.5rem;font-weight:600}
+.sub{margin:.75rem auto 1.75rem;max-width:30ch;color:var(--muted);line-height:1.5;font-size:.95rem}
+.ticket{
+  position:relative;width:100%;aspect-ratio:8/5;border-radius:20px;overflow:hidden;
+  background:var(--plate);border:2px solid var(--gold);
+  box-shadow:0 0 0 5px var(--plate),0 0 0 6px var(--gold2),0 22px 50px -12px var(--shadow);
+  user-select:none;-webkit-user-select:none;
+}
+.prize{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem}
+.prize small{color:var(--muted);font-size:.9rem}
+.prize strong{
+  font-family:"Cormorant Garamond",Georgia,serif;font-weight:700;color:var(--gold);
+  font-size:clamp(58px,21vw,100px);line-height:1;font-variant-numeric:lining-nums;
+}
+canvas{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+  touch-action:none;cursor:grab;transition:opacity 1s ease;
+}
+canvas.gone{opacity:0;pointer-events:none}
+.won .prize strong{animation:pop .9s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{0%{transform:scale(.7);opacity:.2}100%{transform:scale(1);opacity:1}}
+.hint{margin:1.25rem 0 0;color:var(--muted);font-size:.9rem}
+.result{margin:1.5rem auto 0;max-width:32ch;line-height:1.55}
+.result b{color:var(--gold);font-weight:500}
+.result span{display:block;margin-top:.5rem;color:var(--muted);font-size:.9rem}
+.reset{
+  margin-top:2.25rem;background:none;border:0;padding:.5rem;color:var(--muted);
+  font:inherit;font-size:.8rem;text-decoration:underline;text-underline-offset:3px;cursor:pointer;opacity:.6;
+}
+.rules{margin:2.25rem auto 0;max-width:36ch;text-align:left;padding-top:1.5rem;border-top:1px solid var(--gold2)}
+.rules h2{margin:0 0 .75rem;font-family:"Cormorant Garamond",Georgia,serif;font-size:1.7rem;line-height:1.1;color:var(--gold);text-align:center}
+.rules p{margin:0 0 .75rem;line-height:1.6;font-size:.95rem}
+.rules ul{margin:0 0 .75rem;padding-left:1.25rem;line-height:1.6;font-size:.95rem}
+.rules li::marker{color:var(--gold)}
+.gate{width:100%;max-width:440px;text-align:center}
+.pw{margin:.75rem auto 0;max-width:300px}
+.pwrow{display:flex;gap:.5rem}
+.pw input{
+  flex:1;min-width:0;padding:.65rem .8rem;border-radius:10px;border:1px solid var(--gold2);
+  background:var(--plate);color:var(--ink);font:inherit;font-size:16px;
+}
+.pw button{
+  padding:.65rem .9rem;border-radius:10px;border:1px solid var(--gold);background:var(--gold);
+  color:var(--plate);font:inherit;font-size:.9rem;cursor:pointer;
+}
+.pwmsg{min-height:1.2em;margin:.5rem 0 0;color:var(--muted);font-size:.85rem}
+.reset:focus-visible,.pw button:focus-visible,.pw input:focus-visible,canvas:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){.won .prize strong{animation:none}canvas{transition:none}}
+</style>
+</head>
+<body>
+<section class="gate" id="gate">
+  <h1>Monatslos</h1>
+  <p class="sub">Bitte geben Sie das Passwort ein.</p>
+  <div class="pw">
+    <div class="pwrow">
+      <input id="gin" type="password" placeholder="Passwort" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Passwort">
+      <button id="gok" type="button">Öffnen</button>
+    </div>
+    <p class="pwmsg" id="gmsg" role="status"></p>
+  </div>
+</section>
+
+<main id="app" hidden>
+  <h1>Monatslos</h1>
+  <p class="month" id="month"></p>
+  <p class="sub">Bitte rubbeln Sie das Los frei. Der Betrag darunter ist der Bonus für diesen Monat.</p>
+
+  <div class="ticket" id="ticket">
+    <div class="prize"><small>Bonus</small><strong id="amt">?</strong></div>
+    <canvas id="c" aria-label="Rubbelfläche, mit dem Finger freirubbeln"></canvas>
+  </div>
+
+  <p class="hint" id="hint">Rubbeln Sie mit dem Finger über die Folie.</p>
+  <p class="result" id="result" hidden></p>
+
+  <section class="rules" aria-labelledby="rules-h">
+    <h2 id="rules-h">Regeln</h2>
+    <p>Das Los bestimmt den Bonus für den Monat. Er liegt zwischen 25 und 85 €.</p>
+    <p>Unabhängig vom Los trägt der Sklave:</p>
+    <ul>
+      <li>die Kosten für die Nägel</li>
+      <li>die Zigarettenkosten</li>
+    </ul>
+    <p>Sie können den Sklaven jederzeit gemäß der CNC-Vereinbarung weiter melken. Voraussetzung ist, dass Sie ihn so erfolgreich teasen, dass er gar nicht anders will, als zu zahlen.</p>
+  </section>
+  <button class="reset" id="reset" type="button">Zurücksetzen</button>
+  <div class="pw" id="pw" hidden>
+    <div class="pwrow">
+      <input id="pwin" type="password" placeholder="Passwort" autocomplete="off" aria-label="Passwort zum Zurücksetzen">
+      <button id="pwok" type="button">Bestätigen</button>
+    </div>
+    <p class="pwmsg" id="pwmsg" role="status"></p>
+  </div>
+</main>
+
+<script>
+(function(){
+  var MIN=25,MAX=85;
+  var now=new Date();
+  var key='monatslos:v2:'+now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  var monthLabel=now.toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+  var mem={};
+  function load(){try{var v=localStorage.getItem(key);if(v)return JSON.parse(v)}catch(e){}return mem[key]||null}
+  function save(o){mem[key]=o;try{localStorage.setItem(key,JSON.stringify(o))}catch(e){}}
+  function wipe(){delete mem[key];try{localStorage.removeItem(key)}catch(e){}}
+  var HASH='1365f1f5e8c87755f4a022bba32b797b7201b2a572159097344a44bf4f08bc38';
+  function sha(s){
+    return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(function(b){
+      return Array.prototype.map.call(new Uint8Array(b),function(x){return x.toString(16).padStart(2,'0')}).join('');
+    });
+  }
+
+  function rnd(min,max){
+    var r=max-min+1;
+    try{
+      var a=new Uint32Array(1),lim=Math.floor(4294967296/r)*r;
+      do{crypto.getRandomValues(a)}while(a[0]>=lim);
+      return min+a[0]%r;
+    }catch(e){return min+Math.floor(Math.random()*r)}
+  }
+  function eur(n){return n+'\u00a0€'}
+
+  var ticket=document.getElementById('ticket'),cv=document.getElementById('c'),
+      amtEl=document.getElementById('amt'),hint=document.getElementById('hint'),
+      resultEl=document.getElementById('result'),resetBtn=document.getElementById('reset'),
+      pw=document.getElementById('pw'),pwin=document.getElementById('pwin'),pwok=document.getElementById('pwok'),pwmsg=document.getElementById('pwmsg'),
+      ctx,dpr=1,W=0,H=0,brush=40;
+  document.getElementById('month').textContent=monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1);
+
+  var st=load()||{amount:null,done:false};
+  if(st.amount!=null&&st.amount>MAX){wipe();st={amount:null,done:false}}
+  var amount=st.amount,done=!!st.done,started=false,drawing=false,last=null,lastCheck=0;
+
+  function setup(){
+    var r=ticket.getBoundingClientRect();
+    W=r.width;H=r.height;dpr=Math.min(window.devicePixelRatio||1,2.5);
+    cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
+    ctx=cv.getContext('2d',{willReadFrequently:true});
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.globalCompositeOperation='source-over';
+    brush=Math.max(32,W*.09);
+    var g=ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,'#c4c7cc');g.addColorStop(.28,'#f3f4f6');g.addColorStop(.52,'#a7abb2');
+    g.addColorStop(.78,'#eceef0');g.addColorStop(1,'#b2b6bd');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(60,64,72,.13)';ctx.lineWidth=1;
+    for(var x=-H;x<W;x+=6){ctx.beginPath();ctx.moveTo(x,H);ctx.lineTo(x+H,0);ctx.stroke()}
+    ctx.fillStyle='rgba(48,52,60,.8)';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font='700 '+Math.round(W*.115)+'px "Cormorant Garamond",Georgia,serif';
+    ctx.fillText('Hier rubbeln',W/2,H/2);
+  }
+
+  function pos(e){var r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+  function stroke(a,b){
+    ctx.globalCompositeOperation='destination-out';
+    ctx.lineWidth=brush;ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  }
+  function begin(){
+    if(started)return;
+    started=true;
+    if(amount==null)amount=rnd(MIN,MAX);
+    amtEl.textContent=eur(amount);
+    save({amount:amount,done:false});
+    hint.textContent='Rubbeln Sie weiter, gleich ist der Betrag zu sehen.';
+  }
+  function check(){
+    if(done||!ctx)return;
+    var d=ctx.getImageData(0,0,cv.width,cv.height).data,c=0,t=0;
+    for(var i=3;i<d.length;i+=96){t++;if(d[i]<40)c++}
+    if(t&&c/t>.5)reveal(true);
+  }
+  function showResult(){
+    hint.hidden=true;
+    resultEl.hidden=false;
+    resultEl.innerHTML='Das Los ist gefallen. Der Bonus für '+monthLabel+' beträgt <b>'+eur(amount)+'</b>.<span>Ihr Sklave bedankt sich bei Ihnen, Herrin.</span>';
+  }
+  function reveal(animate){
+    done=true;
+    save({amount:amount,done:true});
+    amtEl.textContent=eur(amount);
+    if(animate){ticket.classList.add('won');cv.classList.add('gone')}else{cv.hidden=true}
+    showResult();
+  }
+
+  cv.addEventListener('pointerdown',function(e){
+    if(done)return;
+    e.preventDefault();
+    try{cv.setPointerCapture(e.pointerId)}catch(_){}
+    begin();drawing=true;last=pos(e);stroke(last,last);
+  });
+  cv.addEventListener('pointermove',function(e){
+    if(!drawing)return;
+    e.preventDefault();
+    var p=pos(e);stroke(last,p);last=p;
+    var t=Date.now();if(t-lastCheck>250){lastCheck=t;check()}
+  });
+  ['pointerup','pointercancel'].forEach(function(n){
+    cv.addEventListener(n,function(){if(!drawing)return;drawing=false;last=null;check()});
+  });
+
+  resetBtn.addEventListener('click',function(){
+    pw.hidden=!pw.hidden;pwmsg.textContent='';
+    if(!pw.hidden)pwin.focus();
+  });
+  function tryReset(){
+    var v=pwin.value;
+    if(!v)return;
+    if(!(window.crypto&&crypto.subtle)){pwmsg.textContent='Zurücksetzen ist in diesem Browser nicht möglich.';return}
+    sha('monatslos|'+v).then(function(h){
+      if(h===HASH){wipe();location.reload()}
+      else{pwmsg.textContent='Falsches Passwort.';pwin.value=''}
+    },function(){pwmsg.textContent='Zurücksetzen ist in diesem Browser nicht möglich.'});
+  }
+  pwok.addEventListener('click',tryReset);
+  pwin.addEventListener('keydown',function(e){if(e.key==='Enter')tryReset()});
+
+  window.addEventListener('resize',function(){if(inited&&!done&&!started)setup()});
+
+  function init(){
+    if(done&&amount!=null){reveal(false)}
+    else{
+      if(amount!=null){amtEl.textContent=eur(amount);started=false}
+      if(document.fonts&&document.fonts.ready){document.fonts.ready.then(setup,setup)}else{setup()}
+      setup();
+    }
+  }
+
+  var GHASH='d84c74422c3845f7882c421ab9eb4285716cdf2394a3c203018bf1f4b4b9c1ee',UKEY='monatslos:unlock',
+      gate=document.getElementById('gate'),app=document.getElementById('app'),
+      gin=document.getElementById('gin'),gok=document.getElementById('gok'),gmsg=document.getElementById('gmsg'),
+      inited=false;
+  function openApp(){
+    gate.hidden=true;app.hidden=false;
+    if(!inited){inited=true;init()}
+  }
+  function tryGate(){
+    var v=gin.value.trim();
+    if(!v)return;
+    if(!(window.crypto&&crypto.subtle)){gmsg.textContent='Dieser Browser wird nicht unterstützt.';return}
+    sha('monatslos-gate|'+v).then(function(h){
+      if(h===GHASH){try{localStorage.setItem(UKEY,GHASH)}catch(e){}openApp()}
+      else{gmsg.textContent='Falsches Passwort.';gin.value=''}
+    },function(){gmsg.textContent='Dieser Browser wird nicht unterstützt.'});
+  }
+  gok.addEventListener('click',tryGate);
+  gin.addEventListener('keydown',function(e){if(e.key==='Enter')tryGate()});
+  var already=false;
+  try{already=localStorage.getItem(UKEY)===GHASH}catch(e){}
+  if(already)openApp();
+})();
+</script>
+</body>
+</html>
