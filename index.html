@@ -8,21 +8,23 @@
 <style>
 :root{
   color-scheme:light dark;
-  --bg:#f7ece4;--bg2:#ecd6cb;--ink:#2b0d14;--muted:#7c5560;--gold:#8a6218;--gold2:#c9a14a;--plate:#fff7ee;--shadow:rgba(60,20,30,.25);
+  --bg:#f6cfe0;--bg2:#e99ec0;--ink:#3b0b25;--muted:#8a3f65;--gold:#a3125a;--gold2:#d46a9c;--plate:#fff1f7;--shadow:rgba(120,20,70,.3);--hot:#c21818;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){--bg:#1a070d;--bg2:#321019;--ink:#f4e9dc;--muted:#b69aa0;--gold:#d4ac5b;--gold2:#8f6a24;--plate:#120509;--shadow:rgba(0,0,0,.6)}
+  :root:not([data-theme="light"]){--bg:#2a0a1b;--bg2:#6b1743;--ink:#fde9f2;--muted:#e0a9c4;--gold:#ff7ab8;--gold2:#b02a6f;--plate:#3b1029;--shadow:rgba(0,0,0,.55);--hot:#ff4a4a}
 }
-:root[data-theme="dark"]{--bg:#1a070d;--bg2:#321019;--ink:#f4e9dc;--muted:#b69aa0;--gold:#d4ac5b;--gold2:#8f6a24;--plate:#120509;--shadow:rgba(0,0,0,.6)}
+:root[data-theme="dark"]{--bg:#2a0a1b;--bg2:#6b1743;--ink:#fde9f2;--muted:#e0a9c4;--gold:#ff7ab8;--gold2:#b02a6f;--plate:#3b1029;--shadow:rgba(0,0,0,.55);--hot:#ff4a4a}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:border-box}
 body{
   margin:0;min-height:100%;display:flex;align-items:center;justify-content:center;
   padding:28px 20px;color:var(--ink);
-  background:radial-gradient(120% 80% at 50% 0%,var(--bg2),var(--bg) 70%) var(--bg);
+  background-color:var(--bg);
+  background-image:linear-gradient(180deg,var(--bg2) 0%,color-mix(in oklab,var(--bg2) 82%,var(--bg)) 10%,color-mix(in oklab,var(--bg2) 62%,var(--bg)) 24%,color-mix(in oklab,var(--bg2) 40%,var(--bg)) 42%,color-mix(in oklab,var(--bg2) 22%,var(--bg)) 62%,color-mix(in oklab,var(--bg2) 8%,var(--bg)) 82%,var(--bg) 100%);
+  background-repeat:no-repeat;
   font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
   -webkit-tap-highlight-color:transparent;
 }
@@ -60,11 +62,43 @@ canvas.gone{opacity:0;pointer-events:none}
   margin-top:2.25rem;background:none;border:0;padding:.5rem;color:var(--muted);
   font:inherit;font-size:.8rem;text-decoration:underline;text-underline-offset:3px;cursor:pointer;opacity:.6;
 }
-.rules{margin:2.25rem auto 0;max-width:36ch;text-align:left;padding-top:1.5rem;border-top:1px solid var(--gold2)}
+.rules{margin:0 auto;max-width:36ch;text-align:left}
 .rules h2{margin:0 0 .75rem;font-family:"Cormorant Garamond",Georgia,serif;font-size:1.7rem;line-height:1.1;color:var(--gold);text-align:center}
 .rules p{margin:0 0 .75rem;line-height:1.6;font-size:.95rem}
 .rules ul{margin:0 0 .75rem;padding-left:1.25rem;line-height:1.6;font-size:.95rem}
 .rules li::marker{color:var(--gold)}
+.choices{display:grid;gap:.75rem}
+.choice{display:block;width:100%;padding:1rem 1.1rem;border-radius:14px;border:1px solid var(--gold2);background:var(--plate);color:var(--ink);font:inherit;text-align:left;cursor:pointer}
+.choice:hover{border-color:var(--gold)}
+.choice b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:1.6rem;line-height:1.1;color:var(--gold);font-weight:700}
+.choice span{display:block;margin-top:.3rem;color:var(--muted);font-size:.85rem;line-height:1.4}
+.go{margin-top:1.25rem;padding:.8rem 2rem;border-radius:12px;border:1px solid var(--gold);background:var(--gold);color:var(--plate);font:inherit;font-weight:500;cursor:pointer}
+.go:disabled{opacity:.5}
+.wheelbox{position:relative;width:min(100%,340px);aspect-ratio:1;margin:0 auto}
+.wheelbox canvas{position:static;cursor:default;touch-action:auto;border-radius:50%;box-shadow:0 0 0 4px var(--gold),0 18px 40px -12px var(--shadow)}
+.ptr{position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border:12px solid transparent;border-top:26px solid var(--gold);border-bottom:0;z-index:2}
+.dice{display:flex;align-items:center;justify-content:center;gap:.35rem}
+.dice em{color:var(--muted);font-style:normal;font-size:1.4rem}
+.die{width:clamp(48px,15vw,72px);height:clamp(48px,15vw,72px);display:flex;align-items:center;justify-content:center;border-radius:16px;border:2px solid var(--gold);background:var(--plate);color:var(--gold);font-family:"Cormorant Garamond",Georgia,serif;font-size:clamp(1.8rem,8vw,2.6rem);font-weight:700}
+.chain{height:12px;width:min(100%,260px);margin:0 auto 1.1rem;background:var(--gold2);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12' viewBox='0 0 28 12'%3E%3Crect x='1' y='2' width='16' height='8' rx='4' fill='none' stroke='black' stroke-width='2'/%3E%3Crect x='13' y='4' width='14' height='4' rx='2' fill='none' stroke='black' stroke-width='2'/%3E%3C/svg%3E") repeat-x center/28px 12px;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='12' viewBox='0 0 28 12'%3E%3Crect x='1' y='2' width='16' height='8' rx='4' fill='none' stroke='black' stroke-width='2'/%3E%3Crect x='13' y='4' width='14' height='4' rx='2' fill='none' stroke='black' stroke-width='2'/%3E%3C/svg%3E") repeat-x center/28px 12px}
+.lock{display:block;margin:0 auto .6rem;color:var(--gold)}
+.ticket::before,.ticket::after{content:"";position:absolute;pointer-events:none;z-index:2}
+.ticket::before{inset:0;background:radial-gradient(circle at 15px 15px,var(--gold) 0 3px,transparent 3.5px),radial-gradient(circle at calc(100% - 15px) 15px,var(--gold) 0 3px,transparent 3.5px),radial-gradient(circle at 15px calc(100% - 15px),var(--gold) 0 3px,transparent 3.5px),radial-gradient(circle at calc(100% - 15px) calc(100% - 15px),var(--gold) 0 3px,transparent 3.5px)}
+.ticket::after{inset:6px;border:1.5px dashed var(--gold2);border-radius:14px}
+.choice{outline:1.5px dashed var(--gold2);outline-offset:-6px}
+.tag{margin:.6rem auto 0;max-width:30ch;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:1.2rem;line-height:1.3;color:var(--gold)}
+.result .q{font-style:italic;color:var(--gold)}
+#demoentry{margin-top:.25rem}
+#demobox{margin:1rem auto 0;max-width:34ch}
+#demobox p{margin:0 0 .5rem;line-height:1.55;font-size:.9rem;color:var(--muted)}
+#demobox .go{margin:.4rem .25rem 0}
+.hcentry{margin-top:1.75rem}
+.hcbtn{padding:.65rem 1.2rem;border-radius:12px;border:1px solid var(--hot);background:transparent;color:var(--hot);font:inherit;font-weight:500;cursor:pointer}
+#hcbox{margin:1rem auto 0;max-width:34ch}
+#hcbox p{margin:0 0 .5rem;line-height:1.55;font-size:.9rem;color:var(--muted)}
+.hcentry .reset{margin-top:.5rem}
+#hcback{margin:1.5rem auto 0}
+html[data-hc] h1{color:var(--hot)}
 .gate{width:100%;max-width:440px;text-align:center}
 .pw{margin:.75rem auto 0;max-width:300px}
 .pwrow{display:flex;gap:.5rem}
@@ -84,8 +118,10 @@ canvas.gone{opacity:0;pointer-events:none}
 </head>
 <body>
 <section class="gate" id="gate">
+  <svg class="lock" viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/></svg>
+  <div class="chain" aria-hidden="true"></div>
   <h1>Monatslos</h1>
-  <p class="sub">Bitte geben Sie das Passwort ein.</p>
+  <p class="sub">Zutritt nur für Mistress Franzisca. Bitte geben Sie das Passwort ein.</p>
   <div class="pw">
     <div class="pwrow">
       <input id="gin" type="password" placeholder="Passwort" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Passwort">
@@ -96,9 +132,23 @@ canvas.gone{opacity:0;pointer-events:none}
 </section>
 
 <main id="app" hidden>
+  <div class="chain" aria-hidden="true"></div>
   <h1>Monatslos</h1>
   <p class="month" id="month"></p>
-  <p class="sub">Bitte rubbeln Sie das Los frei. Der Betrag darunter ist der Bonus für diesen Monat.</p>
+  <p class="tag" id="tag"></p>
+  <p class="sub" id="demonote" hidden>Demo-Modus: Die Ergebnisse sind nicht verbindlich und werden nicht gespeichert.</p>
+  <p class="sub" id="hcnote" hidden>Dieser Modus darf nur gespielt werden, wenn Sie Sklave Tizian bestrafen, weil er richtig Scheiße gebaut hat, zum Beispiel weil er trotz Keuschhaltung abgespritzt hat.</p>
+  <section id="menu" hidden>
+    <p class="sub" id="menuSub">Mistress Franzisca, bitte wählen Sie, womit Sklave Tizian diesen Monat zahlt.</p>
+    <div class="choices">
+      <button type="button" class="choice" data-g="scratch"><b>Rubbellos</b><span>Die Folie freirubbeln.</span></button>
+      <button type="button" class="choice" data-g="wheel"><b>Glücksrad</b><span>Einmal drehen, das Feld unter dem Pfeil entscheidet.</span></button>
+      <button type="button" class="choice" data-g="dice"><b>Würfelspiel</b><span>Viermal würfeln, die Ergebnisse werden miteinander multipliziert.</span></button>
+    </div>
+  </section>
+
+  <div id="g-scratch" hidden>
+  <p class="sub" id="subS">Bitte rubbeln Sie das Los frei. Der Betrag darunter ist der Bonus für diesen Monat.</p>
 
   <div class="ticket" id="ticket">
     <div class="prize"><small>Bonus</small><strong id="amt">?</strong></div>
@@ -106,18 +156,60 @@ canvas.gone{opacity:0;pointer-events:none}
   </div>
 
   <p class="hint" id="hint">Rubbeln Sie mit dem Finger über die Folie.</p>
+  </div>
+
+  <div id="g-wheel" hidden>
+    <p class="sub">Bitte drehen Sie das Rad. Das Feld unter dem Pfeil entscheidet.</p>
+    <div class="wheelbox"><i class="ptr"></i><canvas id="wc" aria-label="Glücksrad"></canvas></div>
+    <button type="button" class="go" id="spin">Rad drehen</button>
+  </div>
+
+  <div id="g-dice" hidden>
+    <p class="sub">Sie dürfen viermal würfeln. Die vier Ergebnisse werden miteinander multipliziert.</p>
+    <div class="dice"><span class="die" id="d0">?</span><em>×</em><span class="die" id="d1">?</span><em>×</em><span class="die" id="d2">?</span><em>×</em><span class="die" id="d3">?</span></div>
+    <p class="hint" id="dinfo"></p>
+    <button type="button" class="go" id="roll">Würfeln</button>
+  </div>
   <p class="result" id="result" hidden></p>
 
+  <div class="hcentry" id="hcentry">
+    <button type="button" class="hcbtn" id="hcgo">Hardcore-Modus</button>
+    <div id="hcbox" hidden>
+      <p>Der Hardcore-Modus darf nur gespielt werden, wenn Sie Sklave Tizian bestrafen, weil er richtig Scheiße gebaut hat, zum Beispiel weil er trotz Keuschhaltung abgespritzt hat.</p>
+      <button type="button" class="go" id="hcstart">Hardcore-Modus starten</button>
+      <button type="button" class="reset" id="hccancel">Abbrechen</button>
+    </div>
+  </div>
+  <div class="hcentry" id="demoentry">
+    <button type="button" class="reset" id="demogo">Demo-Modus</button>
+    <div id="demobox" hidden>
+      <p>Im Demo-Modus können Sie alle Spiele ausprobieren. Es wird nichts gespeichert, und nichts davon ist verbindlich.</p>
+      <button type="button" class="go" id="demonorm">Demo starten</button>
+      <button type="button" class="go" id="demohard">Hardcore-Demo starten</button>
+      <button type="button" class="reset" id="democlose">Abbrechen</button>
+    </div>
+  </div>
+  <div class="hcentry" id="demobar" hidden>
+    <button type="button" class="go" id="demoagain">Neues Demo-Spiel</button><br>
+    <button type="button" class="reset" id="demoend">Demo beenden</button>
+  </div>
+  <button type="button" class="go" id="hcback" hidden>Zurück zur normalen Seite</button>
+
+  <div class="chain" aria-hidden="true" style="margin-top:2.25rem"></div>
   <section class="rules" aria-labelledby="rules-h">
     <h2 id="rules-h">Regeln</h2>
-    <p>Das Los bestimmt den Bonus für den Monat. Er liegt zwischen 50 und 200 €.</p>
-    <p>Unabhängig vom Los trägt der Sklave:</p>
+    <p>Mistress Franzisca bestimmt, Sklave Tizian zahlt. Ein guter Geldsklave zahlt pünktlich und ohne zu murren.</p>
+    <p>Sie wählen für jeden Monat eines der Spiele. Das gewählte Spiel bestimmt den Bonus für den Monat.</p>
+    <p>Unabhängig vom Los trägt Sklave Tizian:</p>
     <ul>
       <li>die Kosten für die Nägel</li>
       <li>die Zigarettenkosten</li>
     </ul>
-    <p>Sie können den Sklaven jederzeit gemäß der CNC-Vereinbarung weiter melken. Voraussetzung ist, dass Sie ihn so erfolgreich teasen, dass er gar nicht anders will, als zu zahlen.</p>
-    <p>Ruft der Sklave „Limit“, können nicht gezahlte Beträge als Schulden in den nächsten Monat übertragen werden.</p>
+    <p>Sie können Sklave Tizian jederzeit gemäß der CNC-Vereinbarung weiter melken. Voraussetzung ist, dass Sie ihn so erfolgreich teasen, dass er gar nicht anders will, als zu zahlen.</p>
+    <p>Ruft Sklave Tizian „Limit“, können nicht gezahlte Beträge als Schulden in den nächsten Monat übertragen werden.</p>
+    <p>Werden die Schulden nicht getilgt, dürfen Sie Sklave Tizian nach Ihrem Ermessen bestrafen und etwas auf Ratenzahlung von ihm verlangen.</p>
+    <p>Die Ratenzahlung ist unabhängig von der Höhe der Schulden. Ihre Gesamtsumme darf höher sein als die Schulden.</p>
+    <p>Bei jedem Spiel steht zusätzlich der Hardcore-Modus zur Verfügung. Er darf nur gespielt werden, wenn Sie Sklave Tizian bestrafen, weil er richtig Scheiße gebaut hat, zum Beispiel weil er trotz Keuschhaltung abgespritzt hat.</p>
   </section>
   <button class="reset" id="reset" type="button">Zurücksetzen</button>
   <div class="pw" id="pw" hidden>
@@ -134,11 +226,17 @@ canvas.gone{opacity:0;pointer-events:none}
   var MIN=50,MAX=200;
   var now=new Date();
   var key='monatslos:v2:'+now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  var MK=key,HK='monatslos:v2:hc',hc=false;
+  try{hc=localStorage.getItem(HK)!==null}catch(e){}
+  if(hc)key=HK;
+  var DK='monatslos:v2:demo',dm=false;
+  try{var dv=localStorage.getItem(DK);if(dv!==null){dm=true;hc=(dv==='h');key=DK}}catch(e){}
+  var LO=hc?100:MIN,HI=hc?300:MAX;
   var monthLabel=now.toLocaleDateString('de-DE',{month:'long',year:'numeric'});
   var mem={};
   function load(){try{var v=localStorage.getItem(key);if(v)return JSON.parse(v)}catch(e){}return mem[key]||null}
-  function save(o){mem[key]=o;try{localStorage.setItem(key,JSON.stringify(o))}catch(e){}}
-  function wipe(){delete mem[key];try{localStorage.removeItem(key)}catch(e){}}
+  function save(o){mem[key]=o;if(dm)return;try{localStorage.setItem(key,JSON.stringify(o))}catch(e){}}
+  function wipe(){delete mem[MK];delete mem[HK];try{localStorage.removeItem(MK);localStorage.removeItem(HK);localStorage.removeItem(DK)}catch(e){}}
   var HASH='1365f1f5e8c87755f4a022bba32b797b7201b2a572159097344a44bf4f08bc38';
   function sha(s){
     return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(function(b){
@@ -161,10 +259,10 @@ canvas.gone{opacity:0;pointer-events:none}
       resultEl=document.getElementById('result'),resetBtn=document.getElementById('reset'),
       pw=document.getElementById('pw'),pwin=document.getElementById('pwin'),pwok=document.getElementById('pwok'),pwmsg=document.getElementById('pwmsg'),
       ctx,dpr=1,W=0,H=0,brush=40;
-  document.getElementById('month').textContent=monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1);
+  document.getElementById('month').textContent=dm?(hc?'Demo: Hardcore-Modus':'Demo-Modus'):hc?'Hardcore-Modus':monthLabel.charAt(0).toUpperCase()+monthLabel.slice(1);
 
   var st=load()||{amount:null,done:false};
-  if(st.amount!=null&&(st.amount>MAX||st.amount<MIN)){wipe();st={amount:null,done:false}}
+  if(st.amount!=null&&(!st.game||st.game==='scratch')&&(st.amount>HI||st.amount<LO)){wipe();st={amount:null,done:false}}
   var amount=st.amount,done=!!st.done,started=false,drawing=false,last=null,lastCheck=0;
 
   function setup(){
@@ -176,12 +274,12 @@ canvas.gone{opacity:0;pointer-events:none}
     ctx.globalCompositeOperation='source-over';
     brush=Math.max(32,W*.09);
     var g=ctx.createLinearGradient(0,0,W,H);
-    g.addColorStop(0,'#c4c7cc');g.addColorStop(.28,'#f3f4f6');g.addColorStop(.52,'#a7abb2');
-    g.addColorStop(.78,'#eceef0');g.addColorStop(1,'#b2b6bd');
+    g.addColorStop(0,'#d9b3c6');g.addColorStop(.28,'#fbeef4');g.addColorStop(.52,'#c493ae');
+    g.addColorStop(.78,'#f6e1ea');g.addColorStop(1,'#cba0b6');
     ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-    ctx.strokeStyle='rgba(60,64,72,.13)';ctx.lineWidth=1;
+    ctx.strokeStyle='rgba(120,30,80,.14)';ctx.lineWidth=1;
     for(var x=-H;x<W;x+=6){ctx.beginPath();ctx.moveTo(x,H);ctx.lineTo(x+H,0);ctx.stroke()}
-    ctx.fillStyle='rgba(48,52,60,.8)';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(100,20,65,.8)';ctx.textAlign='center';ctx.textBaseline='middle';
     ctx.font='700 '+Math.round(W*.115)+'px "Cormorant Garamond",Georgia,serif';
     ctx.fillText('Hier rubbeln',W/2,H/2);
   }
@@ -195,9 +293,9 @@ canvas.gone{opacity:0;pointer-events:none}
   function begin(){
     if(started)return;
     started=true;
-    if(amount==null)amount=rnd(MIN,MAX);
+    if(amount==null)amount=rnd(LO,HI);
     amtEl.textContent=eur(amount);
-    save({amount:amount,done:false});
+    save({game:'scratch',amount:amount,done:false});
     hint.textContent='Rubbeln Sie weiter, gleich ist der Betrag zu sehen.';
   }
   function check(){
@@ -209,11 +307,11 @@ canvas.gone{opacity:0;pointer-events:none}
   function showResult(){
     hint.hidden=true;
     resultEl.hidden=false;
-    resultEl.innerHTML='Das Los ist gefallen. Der Bonus für '+monthLabel+' beträgt <b>'+eur(amount)+'</b>.<span>Ihr Sklave bedankt sich bei Ihnen, Herrin.</span>';
+    resultEl.innerHTML='Das Los ist gefallen. '+LBL+' beträgt <b>'+eur(amount)+'</b>.<span>'+THX+'</span><span class="q">'+RQ()+'</span>';hcUI();
   }
   function reveal(animate){
     done=true;
-    save({amount:amount,done:true});
+    save({game:'scratch',amount:amount,done:true});
     amtEl.textContent=eur(amount);
     if(animate){ticket.classList.add('won');cv.classList.add('gone')}else{cv.hidden=true}
     showResult();
@@ -253,7 +351,138 @@ canvas.gone{opacity:0;pointer-events:none}
 
   window.addEventListener('resize',function(){if(inited&&!done&&!started)setup()});
 
+  var menu=document.getElementById('menu'),gS=document.getElementById('g-scratch'),gW=document.getElementById('g-wheel'),gD=document.getElementById('g-dice');
+  function show(g){menu.hidden=g!=='menu';gS.hidden=g!=='scratch';gW.hidden=g!=='wheel';gD.hidden=g!=='dice';hcUI()}
+  function finish(html){hint.hidden=true;resultEl.hidden=false;resultEl.innerHTML=html+'<span>'+THX+'</span><span class="q">'+RQ()+'</span>';hcUI()}
+
+  /* Hardcore-Modus: eigenes Spiel nur bei Bestrafung, eigene Beträge bis 300 € */
+  var LBLs=dm?(hc?'der Betrag im Hardcore-Demo':'der Betrag im Demo-Spiel'):hc?'der Betrag im Hardcore-Modus':'der Bonus für '+monthLabel,
+      LBL=LBLs.charAt(0).toUpperCase()+LBLs.slice(1),
+      THX=hc?'Ihr Sklave bedankt sich bei Ihnen, sehr geehrte Mistress.':'Ihr Sklave bedankt sich bei Ihnen, Herrin.',
+      hcentry=document.getElementById('hcentry'),hcbox=document.getElementById('hcbox'),hcback=document.getElementById('hcback');
+  function hcUI(){hcback.hidden=!(hc&&!dm&&(!menu.hidden||!resultEl.hidden))}
+  hcentry.hidden=hc||dm;
+  var demoentry=document.getElementById('demoentry'),demobox=document.getElementById('demobox'),demobar=document.getElementById('demobar');
+  demoentry.hidden=hc||dm;demobar.hidden=!dm;
+  var TAGS=hc?['Fehler kosten, Sklave Tizian.','Mistress Franzisca straft, Sklave Tizian trägt die Folgen.','Disziplin hat ihren Preis.']:['Mistress Franzisca bestimmt, Sklave Tizian zahlt.','Zahlen ist Sklave Tizians einzige Aufgabe.','Ein guter Geldsklave zahlt pünktlich und ohne zu murren.','Sklave Tizians Geld gehört Mistress Franzisca.','Zahlen ist keine Bitte, sondern Pflicht.','Tribut statt Ausreden.','Jeder Euro beweist Tizians Hingabe.','Mistress Franzisca verdient jeden Cent.'],
+      QUO=['Sklave Tizian zahlt, was Mistress Franzisca verlangt.','Zahlen ist seine Pflicht und sein Privileg.','Ein guter Sklave zahlt, ohne zu fragen.','Mistress Franzisca hat entschieden, Sklave Tizian überweist.','Tribut gehört bezahlt, nicht diskutiert.','Sein Geld gehört ohnehin Mistress Franzisca.'];
+  function RQ(){return QUO[rnd(0,QUO.length-1)]}
+  document.getElementById('tag').textContent=TAGS[rnd(0,TAGS.length-1)];
+  if(hc){
+    document.documentElement.setAttribute('data-hc','1');
+    document.getElementById('hcnote').hidden=dm;
+    document.getElementById('menuSub').textContent='Mistress Franzisca, bitte wählen Sie das Spiel für die Strafe von Sklave Tizian.';
+    document.getElementById('subS').textContent='Bitte rubbeln Sie das Los frei. Der Betrag darunter gilt im Hardcore-Modus.';
+  }
+  if(dm){
+    document.getElementById('demonote').hidden=false;
+    document.getElementById('menuSub').textContent='Wählen Sie ein Spiel zum Ausprobieren.';
+    document.getElementById('subS').textContent='Bitte rubbeln Sie das Los frei. Der Betrag darunter gilt nur im Demo-Modus.';
+  }
+  function startDemo(v){try{localStorage.setItem(DK,v);location.reload()}catch(e){}}
+  document.getElementById('demogo').addEventListener('click',function(){demobox.hidden=!demobox.hidden});
+  document.getElementById('democlose').addEventListener('click',function(){demobox.hidden=true});
+  document.getElementById('demonorm').addEventListener('click',function(){startDemo('n')});
+  document.getElementById('demohard').addEventListener('click',function(){startDemo('h')});
+  document.getElementById('demoagain').addEventListener('click',function(){location.reload()});
+  document.getElementById('demoend').addEventListener('click',function(){try{localStorage.removeItem(DK)}catch(e){}location.reload()});
+  document.getElementById('hcgo').addEventListener('click',function(){hcbox.hidden=!hcbox.hidden});
+  document.getElementById('hccancel').addEventListener('click',function(){hcbox.hidden=true});
+  document.getElementById('hcstart').addEventListener('click',function(){try{localStorage.setItem(HK,'{}');location.reload()}catch(e){}});
+  hcback.addEventListener('click',function(){try{localStorage.removeItem(HK)}catch(e){}location.reload()});
+
+  /* Glücksrad */
+  var ERP=['Harte Erpressung','mit extrem hoher','Summe'],
+      SEG=hc?[100,ERP,150,['Bestrafung per','Peitsche','beim Treffen'],200,['Bestrafung per','Ballbusting','beim Treffen'],250,['Die Mistress','entscheidet die','Strafe komplett','alleine'],300]:[50,75,100,125,150,175,200,ERP],
+      wc=document.getElementById('wc'),spinBtn=document.getElementById('spin'),spun=false;
+  function drawWheel(){
+    var S=340,r=S/2,n=SEG.length,w=2*Math.PI/n,c=wc.getContext('2d'),d=Math.min(window.devicePixelRatio||1,2.5);
+    wc.width=wc.height=Math.round(S*d);c.setTransform(d,0,0,d,0,0);
+    for(var i=0;i<n;i++){
+      var a=-Math.PI/2+i*w,x=typeof SEG[i]!=='number';
+      c.beginPath();c.moveTo(r,r);c.arc(r,r,r-3,a,a+w);c.closePath();
+      c.fillStyle=x?'#2a0a1c':(i%2?'#f7a8c8':'#a3125a');c.fill();
+      c.strokeStyle='#fde9f2';c.lineWidth=1.5;c.stroke();
+      c.save();c.translate(r,r);c.rotate(a+w/2);c.textAlign='right';c.textBaseline='middle';
+      c.fillStyle=x?'#ff8fc4':(i%2?'#4a0d2c':'#fde9f2');
+      if(x){var L=SEG[i],sm=L.length>3;c.font='700 '+(sm?10:11)+'px Inter,system-ui,sans-serif';for(var k=0;k<L.length;k++)c.fillText(L[k],r-14,(k-(L.length-1)/2)*(sm?12:13))}
+      else{c.font='700 26px "Cormorant Garamond",Georgia,serif';c.fillText(eur(SEG[i]),r-16,0)}
+      c.restore();
+    }
+    c.beginPath();c.arc(r,r,22,0,7);c.fillStyle='#ff7ab8';c.fill();c.strokeStyle='#a3125a';c.lineWidth=3;c.stroke();
+  }
+  function showWheel(i){
+    var v=SEG[i];
+    finish(typeof v==='number'?'Das Glücksrad hat entschieden. '+LBL+' beträgt <b>'+eur(v)+'</b>.':'Das Glücksrad hat entschieden: <b>'+v.join(' ')+'.</b>');
+  }
+  function initWheel(){
+    show('wheel');drawWheel();
+    if(st.game==='wheel'){
+      spun=true;spinBtn.hidden=true;wc.style.transition='none';wc.style.transform='rotate('+st.deg+'deg)';showWheel(st.idx);
+    }
+  }
+  spinBtn.addEventListener('click',function(){
+    if(spun)return;
+    spun=true;spinBtn.hidden=true;
+    var i=rnd(0,SEG.length-1),sd=360/SEG.length,deg=2160-(i+.5)*sd+(Math.random()-.5)*sd*.7;
+    st={game:'wheel',idx:i,deg:deg,amount:typeof SEG[i]==='number'?SEG[i]:null,done:true};save(st);
+    wc.style.transition='transform 5.5s cubic-bezier(.12,.7,.1,1)';
+    wc.style.transform='rotate('+deg+'deg)';
+    setTimeout(function(){showWheel(i)},5700);
+  });
+
+  /* Würfelspiel: Betrag = min(DICE_BASE + Produkt der drei Würfe, DICE_CAP) in € */
+  var DICE_BASE=hc?100:50,DICE_CAP=hc?300:250,dEls=[0,1,2,3].map(function(i){return document.getElementById('d'+i)}),
+      rollBtn=document.getElementById('roll'),dinfo=document.getElementById('dinfo'),rolling=false;
+  function dprod(r){return r.reduce(function(a,b){return a*b},1)}
+  function dbase(r){return Math.min(DICE_BASE+dprod(r),DICE_CAP)}
+  function dsum(r){return dbase(r)}
+  function dText(r){
+    var b=dbase(r),cap=DICE_BASE+dprod(r)>DICE_CAP?' (Höchstbetrag)':'',
+        v='<b>'+eur(b)+'</b>'+cap;
+    return 'Gewürfelt: '+r.join(' × ')+' = '+dprod(r)+'. Mit dem Grundbetrag von '+eur(DICE_BASE)+' ergibt das '+v+'. Das ist '+LBLs+'.';
+  }
+  function dView(r){
+    for(var i=0;i<4;i++)dEls[i].textContent=r[i]!=null?r[i]:'?';
+    if(r.length<4){
+      var m=4-r.length;
+      dinfo.textContent='Noch '+m+(m===1?' Wurf':' Würfe')+(r.length?', bisheriges Zwischenergebnis: '+dprod(r):'')+'.';
+      rollBtn.hidden=false;
+    }else{
+      rollBtn.hidden=true;dinfo.hidden=true;
+      finish(dText(r));
+    }
+  }
+  function initDice(){show('dice');dView((st.game==='dice'&&st.rolls)||[])}
+  rollBtn.addEventListener('click',function(){
+    if(rolling)return;
+    var r=(st.game==='dice'&&st.rolls)?st.rolls.slice():[];
+    if(r.length>=4)return;
+    rolling=true;rollBtn.disabled=true;
+    var idx=r.length,val=rnd(1,6),t=0,iv=setInterval(function(){
+      dEls[idx].textContent=rnd(1,6);
+      if(++t>9){
+        clearInterval(iv);r.push(val);dEls[idx].textContent=val;
+        st={game:'dice',rolls:r,amount:r.length===4?dsum(r):null,done:r.length===4};save(st);
+        rolling=false;rollBtn.disabled=false;dView(r);
+      }
+    },70);
+  });
+
+  menu.addEventListener('click',function(e){
+    var b=e.target.closest?e.target.closest('.choice'):null;
+    if(!b)return;
+    var g=b.getAttribute('data-g');
+    if(g==='scratch')startScratch();else if(g==='wheel')initWheel();else initDice();
+  });
+
   function init(){
+    var g=st.game||(st.amount!=null?'scratch':'');
+    if(g==='scratch')startScratch();else if(g==='wheel')initWheel();else if(g==='dice')initDice();else show('menu');
+  }
+
+  function startScratch(){
+    show('scratch');
     if(done&&amount!=null){reveal(false)}
     else{
       if(amount!=null){amtEl.textContent=eur(amount);started=false}
