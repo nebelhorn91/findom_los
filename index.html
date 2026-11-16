@@ -86,6 +86,35 @@ canvas.gone{opacity:0;pointer-events:none}
 .ticket::before{inset:0;background:radial-gradient(circle at 15px 15px,var(--gold) 0 3px,transparent 3.5px),radial-gradient(circle at calc(100% - 15px) 15px,var(--gold) 0 3px,transparent 3.5px),radial-gradient(circle at 15px calc(100% - 15px),var(--gold) 0 3px,transparent 3.5px),radial-gradient(circle at calc(100% - 15px) calc(100% - 15px),var(--gold) 0 3px,transparent 3.5px)}
 .ticket::after{inset:6px;border:1.5px dashed var(--gold2);border-radius:14px}
 .choice{outline:1.5px dashed var(--gold2);outline-offset:-6px}
+.btnrow{display:flex;justify-content:center;gap:.7rem;flex-wrap:wrap}
+.stopbtn{padding:.65rem 1.6rem;border-radius:12px;border:1px solid var(--ink);background:transparent;color:var(--ink);font:inherit;font-weight:600;letter-spacing:.04em;cursor:pointer}
+#stopbox{margin:1rem auto 0;max-width:34ch;line-height:1.55}
+#stopbox p{margin:0 0 .6rem;font-size:.9rem;color:var(--muted)}
+#stopbox b{color:var(--ink)}
+.chk{display:flex;gap:.5rem;align-items:flex-start;text-align:left;margin:.35rem 0;font-size:.85rem;line-height:1.4;color:var(--muted)}
+.chk input{margin-top:.2rem;accent-color:var(--gold)}
+.tscard{margin:1rem 0 .5rem;padding:1rem;border-radius:14px;border:1px solid var(--gold);background:var(--plate);text-align:center}
+.tscard b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:1.5rem;line-height:1.1;color:var(--gold)}
+.tscard span{display:block;margin-top:.4rem;font-size:.95rem;line-height:1.5}
+.csbar{margin:1.5rem auto 0;max-width:34ch}
+.cstat{margin:0 0 .5rem;line-height:1.55;font-size:.95rem}
+.csdet summary{cursor:pointer;color:var(--muted);font-size:.8rem;text-decoration:underline;text-underline-offset:3px}
+.csform{margin-top:.75rem}
+.csform input{width:100%;margin-bottom:.45rem;padding:.65rem .8rem;border-radius:10px;border:1px solid var(--gold2);background:var(--plate);color:var(--ink);font:inherit;font-size:16px;text-align:center}
+.csform .go{margin:.2rem .2rem 0}
+.kgbar{margin-top:1.5rem}
+.kgbtn{padding:.65rem 1.6rem;border-radius:12px;border:1px solid var(--gold);background:transparent;color:var(--gold);font:inherit;font-weight:500;cursor:pointer}
+#kgbox{margin:1rem auto 0;max-width:380px}
+#kgbox p{margin:0 0 .9rem;line-height:1.55;font-size:.9rem;color:var(--muted)}
+.locks{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem}
+.lk{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.35rem;padding:.3rem;border-radius:14px;border:1px solid var(--gold2);background:var(--plate);color:var(--gold);font:inherit;cursor:pointer;outline:1.5px dashed var(--gold2);outline-offset:-5px}
+.lk span{font-size:.78rem;line-height:1.2;color:var(--ink)}
+.lk.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.lk.on span{color:var(--gold);font-weight:600}
+.lk.off{opacity:.5}
+#kgbox .kgres{margin:1rem 0 0;font-size:1rem;color:var(--ink)}
+.kgres b{display:block;color:var(--gold);font-weight:600}
+.kgres span{display:block;margin-top:.5rem;font-size:.9rem;color:var(--muted)}
 .limitbar{margin-top:1.5rem}
 .limitbtn{padding:.65rem 1.8rem;border-radius:12px;border:1px solid var(--hot);background:transparent;color:var(--hot);font:inherit;font-weight:600;letter-spacing:.04em;cursor:pointer}
 #limitbox,#limitdone{margin:1rem auto 0;max-width:34ch;line-height:1.55}
@@ -186,13 +215,18 @@ html[data-hc] h1{color:var(--hot)}
   <p class="result" id="result" hidden></p>
 
   <div class="limitbar" id="limitbar">
-    <button type="button" class="limitbtn" id="limitgo">Limit</button>
+    <div class="btnrow"><button type="button" class="limitbtn" id="limitgo">Limit</button><button type="button" class="stopbtn" id="stopgo">Stopp</button></div>
     <div id="limitbox" hidden>
-      <p>Sklave Tizian meldet sein Limit. Der Betrag, den er nicht zahlen kann, geht als Schulden in den nächsten Monat.</p>
+      <p>Sklave Tizian meldet sein Limit. Der Betrag, den er nicht zahlen kann, geht als Schulden in den nächsten Monat. Für einen Stopp (Safeword) gibt es den Button „Stopp“.</p>
       <input id="limitamt" type="number" inputmode="numeric" min="1" step="1" placeholder="Betrag in €, der nicht gezahlt wird" aria-label="Nicht gezahlter Betrag in Euro">
       <button type="button" class="go" id="limitok">Limit melden</button>
     </div>
     <div id="limitdone" hidden></div>
+    <div id="stopbox" hidden>
+      <p><b>Pause.</b> Alles stoppt sofort. Das ist keine Strafe, und es entstehen keine Schulden. Die Keuschheit besteht fort, ein Stopp ist aber keine Erlaubnis zum Orgasmus. Sprecht danach in Ruhe darüber.</p>
+      <button type="button" class="go" id="stopshare">Mistress benachrichtigen</button>
+      <button type="button" class="reset" id="stopclose">Schließen</button>
+    </div>
   </div>
   <div class="debtbox" id="debtbox" hidden>
     <h3>Offene Schulden</h3>
@@ -205,11 +239,41 @@ html[data-hc] h1{color:var(--hot)}
     <p class="pwmsg" id="debtmsg" role="status"></p></div>
   </div>
 
+  <div class="kgbar" id="kgbar">
+    <button type="button" class="kgbtn" id="kggo">Keuschheitsspiel</button>
+    <div id="kgbox" hidden>
+      <p id="kgtext">Mistress Franzisca, bitte wählen Sie ein Schloss. Dahinter steckt eine Sperrfrist, vor deren Ablauf Sie nicht über eine Erlaubnis entscheiden müssen.</p>
+      <div class="locks" id="locks"></div>
+      <p class="kgres" id="kgres" hidden></p>
+    </div>
+  </div>
+  <div class="kgbar" id="tsbar">
+    <button type="button" class="kgbtn" id="tsgo">Teasing-Karte</button>
+    <div id="tsbox" hidden>
+      <p>Nur im Rahmen der vereinbarten Grenzen. Inhalte laufen privat über Ihren Messenger und bleiben vertraulich. Eine Karte begründet keinen Anspruch auf einen Orgasmus.</p>
+      <div class="tscard" id="tscard" hidden><b id="tstype"></b><span id="tstext"></span></div>
+      <button type="button" class="go" id="tsdraw">Karte ziehen</button>
+    </div>
+  </div>
+  <div class="csbar" id="csbar">
+    <p class="cstat" id="cstat"></p>
+    <details class="csdet"><summary>Status bearbeiten (Mistress)</summary>
+      <div class="csform">
+        <input id="csdate" type="date" aria-label="Startdatum der Keuschheit">
+        <input id="cspw" type="password" placeholder="Passwort" autocomplete="off" aria-label="Passwort">
+        <button type="button" class="go" id="csstart">Beginn setzen</button>
+        <button type="button" class="go" id="csallow">Erlaubnis ausdrücklich erteilen</button>
+        <p class="pwmsg" id="csmsg" role="status"></p>
+      </div>
+    </details>
+  </div>
   <div class="hcentry" id="hcentry">
     <button type="button" class="hcbtn" id="hcgo">Hardcore-Modus</button>
     <div id="hcbox" hidden>
       <p>Der Hardcore-Modus darf nur gespielt werden, wenn Sie Sklave Tizian bestrafen, weil er richtig Scheiße gebaut hat, zum Beispiel weil er trotz Keuschhaltung abgespritzt hat.</p>
-      <button type="button" class="go" id="hcstart">Hardcore-Modus starten</button>
+      <label class="chk"><input type="checkbox" id="hcc1"> Grenzen und erlaubte Handlungen sind aktuell besprochen.</label>
+      <label class="chk"><input type="checkbox" id="hcc2"> Beide sind gerade einverstanden.</label>
+      <button type="button" class="go" id="hcstart" disabled>Hardcore-Modus starten</button>
       <button type="button" class="reset" id="hccancel">Abbrechen</button>
     </div>
   </div>
@@ -243,6 +307,11 @@ html[data-hc] h1{color:var(--hot)}
     <p>Werden die Schulden nicht getilgt, dürfen Sie Sklave Tizian nach Ihrem Ermessen bestrafen und etwas auf Ratenzahlung von ihm verlangen.</p>
     <p>Die Ratenzahlung ist unabhängig von der Höhe der Schulden. Ihre Gesamtsumme darf höher sein als die Schulden.</p>
     <p>Bei jedem Spiel steht zusätzlich der Hardcore-Modus zur Verfügung. Er darf nur gespielt werden, wenn Sie Sklave Tizian bestrafen, weil er richtig Scheiße gebaut hat, zum Beispiel weil er trotz Keuschhaltung abgespritzt hat.</p>
+    <p>Zusätzlich dürfen Sie einmal im Monat das Keuschheitsspiel spielen. Es legt eine Sperrfrist fest, vor deren Ablauf Sie nicht über eine Erlaubnis entscheiden müssen. Ein Anspruch auf einen Orgasmus entsteht daraus nicht.</p>
+    <p>Sie dürfen Sklave Tizian im Rahmen der vereinbarten Grenzen teasen, auch mit persönlichen Medien. Daraus entsteht kein Anspruch auf einen Orgasmus.</p>
+    <p>Das Safeword und der Button „Stopp“ sind etwas anderes als „Limit“. Sie stoppen sofort, werden nicht bestraft und lösen keine Schulden aus. Die Keuschheit besteht dabei fort, ein Stopp ist keine Erlaubnis zum Orgasmus.</p>
+    <p>Erpressung ist hier ein reines Rollenspiel. Echte Drohungen, die Weitergabe privater Informationen und der Einsatz echter Geheimnisse sind ausgeschlossen.</p>
+    <p>Körperliche Strafen wie Peitsche oder Ballbusting gelten nur, wenn sie in der vorab festgelegten Liste erlaubter Handlungen stehen.</p>
   </section>
   <button class="reset" id="reset" type="button">Zurücksetzen</button>
   <div class="pw" id="pw" hidden>
@@ -269,7 +338,7 @@ html[data-hc] h1{color:var(--hot)}
   var mem={};
   function load(){try{var v=localStorage.getItem(key);if(v)return JSON.parse(v)}catch(e){}return mem[key]||null}
   function save(o){mem[key]=o;if(dm)return;try{localStorage.setItem(key,JSON.stringify(o))}catch(e){}}
-  function wipe(){delete mem[MK];delete mem[HK];try{localStorage.removeItem(MK);localStorage.removeItem(HK);localStorage.removeItem(DK)}catch(e){}}
+  function wipe(){delete mem[MK];delete mem[HK];try{localStorage.removeItem(MK);localStorage.removeItem(HK);localStorage.removeItem(DK);localStorage.removeItem('monatslos:v2:kg:'+MK.slice(-7));localStorage.removeItem('monatslos:v2:kg:hc')}catch(e){}}
   var HASH='1365f1f5e8c87755f4a022bba32b797b7201b2a572159097344a44bf4f08bc38';
   function sha(s){
     return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(function(b){
@@ -468,8 +537,8 @@ html[data-hc] h1{color:var(--hot)}
   document.getElementById('demoend').addEventListener('click',function(){try{localStorage.removeItem(DK)}catch(e){}location.reload()});
   document.getElementById('hcgo').addEventListener('click',function(){hcbox.hidden=!hcbox.hidden});
   document.getElementById('hccancel').addEventListener('click',function(){hcbox.hidden=true});
-  document.getElementById('hcstart').addEventListener('click',function(){try{localStorage.setItem(HK,'{}');location.reload()}catch(e){}});
-  hcback.addEventListener('click',function(){try{localStorage.removeItem(HK)}catch(e){}location.reload()});
+  document.getElementById('hcstart').addEventListener('click',function(){try{localStorage.removeItem(KGH);localStorage.setItem(HK,'{}');location.reload()}catch(e){}});
+  hcback.addEventListener('click',function(){try{localStorage.removeItem(HK);localStorage.removeItem(KGH)}catch(e){}location.reload()});
 
   /* Glücksrad */
   var ERP=['Harte Erpressung','mit extrem hoher','Summe'],
@@ -493,7 +562,7 @@ html[data-hc] h1{color:var(--hot)}
   }
   function showWheel(i){
     var v=SEG[i];
-    finish(typeof v==='number'?'Das Glücksrad hat entschieden. '+LBL+' beträgt <b>'+eur(v)+'</b>.':'Das Glücksrad hat entschieden: <b>'+v.join(' ')+'.</b>');
+    finish(typeof v==='number'?'Das Glücksrad hat entschieden. '+LBL+' beträgt <b>'+eur(v)+'</b>.':'Das Glücksrad hat entschieden: <b>'+v.join(' ')+'.</b>'+(v===ERP?'<span>Rollenspiel: Es gibt keine echten Drohungen und keine Weitergabe privater Informationen.</span>':'')+(/Peitsche|Ballbusting/.test(v.join(' '))?'<span>Nur wenn diese Handlung in eurer Liste erlaubter Handlungen steht.</span>':''));
   }
   function initWheel(){
     show('wheel');drawWheel();
@@ -548,6 +617,127 @@ html[data-hc] h1{color:var(--hot)}
       }
     },70);
   });
+
+  /* Keuschheitsspiel: sechs Schlösser, eines wählen, dahinter steckt das Ergebnis */
+  var KGM='monatslos:v2:kg:'+MK.slice(-7),KGH='monatslos:v2:kg:hc',KGK=hc?KGH:KGM,kgst=null,
+      KGP=hc?[
+        {t:'Sperrfrist 30 Tage',f:'Sperrfrist von 30 Tagen: Mistress Franzisca prüft frühestens in 30 Tagen wieder, ob sie eine Erlaubnis gibt.'},
+        {t:'Sperrfrist 45 Tage',f:'Sperrfrist von 45 Tagen: Mistress Franzisca prüft frühestens in 45 Tagen wieder, ob sie eine Erlaubnis gibt.'},
+        {t:'Sperrfrist 60 Tage',f:'Sperrfrist von 60 Tagen: Mistress Franzisca prüft frühestens in 60 Tagen wieder, ob sie eine Erlaubnis gibt.'},
+        {t:'Sperrfrist 7 Tage und 150 €',f:'Sperrfrist von 7 Tagen, dazu ein Tribut von 150 €.'},
+        {t:'Peitsche und Sperrfrist 7 Tage',f:'Bestrafung per Peitsche beim Treffen (nur wenn erlaubt), dazu eine Sperrfrist von 7 Tagen.'},
+        {t:'Mistress entscheidet',f:'Mistress Franzisca entscheidet über Strafe und Sperrfrist komplett alleine, die Sperrfrist liegt zwischen 7 und 60 Tagen.'}
+      ]:[
+        {t:'Sperrfrist 21 Tage',f:'Sperrfrist von 21 Tagen: Mistress Franzisca prüft frühestens in 21 Tagen wieder, ob sie eine Erlaubnis gibt.'},
+        {t:'Sperrfrist 7 Tage',f:'Sperrfrist von 7 Tagen: Mistress Franzisca prüft frühestens in 7 Tagen wieder, ob sie eine Erlaubnis gibt.'},
+        {t:'Sperrfrist 14 Tage',f:'Sperrfrist von 14 Tagen: Mistress Franzisca prüft frühestens in 14 Tagen wieder, ob sie eine Erlaubnis gibt.'},
+        {t:'Sperrfrist 30 Tage',f:'Sperrfrist von 30 Tagen: Mistress Franzisca prüft frühestens in 30 Tagen wieder, ob sie eine Erlaubnis gibt.'},
+        {t:'Sperrfrist 7 Tage und 50 €',f:'Sperrfrist von 7 Tagen, dazu ein Tribut von 50 €.'},
+        {t:'Mistress entscheidet',f:'Mistress Franzisca legt die Sperrfrist komplett alleine fest, zwischen 7 und 60 Tagen.'}
+      ],
+      LOCKSVG='<svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.2" fill="currentColor"/></svg>',
+      kgbox=document.getElementById('kgbox'),locksEl=document.getElementById('locks'),kgres=document.getElementById('kgres'),kgtext=document.getElementById('kgtext');
+  function kgLoad(){
+    if(dm)return null;
+    try{
+      var o=JSON.parse(localStorage.getItem(KGK)||'null');
+      if(o&&Array.isArray(o.order)&&o.order.length===6&&o.order.slice().sort().join()==='0,1,2,3,4,5'&&o.pick>=0&&o.pick<=5)return o;
+    }catch(e){}
+    return null;
+  }
+  function kgRender(){
+    locksEl.innerHTML='';
+    for(var i=0;i<6;i++){
+      var b=document.createElement('button');b.type='button';b.className='lk';b.setAttribute('data-i',i);
+      if(kgst){b.className+=(i===kgst.pick?' on':' off');b.disabled=true;b.innerHTML='<span>'+KGP[kgst.order[i]].t+'</span>'}
+      else b.innerHTML=LOCKSVG+'<span>Schloss '+(i+1)+'</span>';
+      locksEl.appendChild(b);
+    }
+    kgres.hidden=!kgst;kgtext.hidden=!!kgst;
+    if(kgst)kgres.innerHTML='<b>'+KGP[kgst.order[kgst.pick]].f+'</b><span>Eine Sperrfrist ist nur eine Mindestzeit. Ein Anspruch auf eine Erlaubnis entsteht daraus nicht.</span><span>'+THX+'</span>';
+  }
+  document.getElementById('kggo').addEventListener('click',function(){
+    kgbox.hidden=!kgbox.hidden;
+    if(!kgbox.hidden){kgst=kgLoad();kgRender()}
+  });
+  locksEl.addEventListener('click',function(e){
+    if(kgst)return;
+    var b=e.target.closest?e.target.closest('.lk'):null;
+    if(!b)return;
+    var order=[0,1,2,3,4,5];
+    for(var i=5;i>0;i--){var j=rnd(0,i),t=order[i];order[i]=order[j];order[j]=t}
+    kgst={order:order,pick:Number(b.getAttribute('data-i'))};
+    if(!dm){try{localStorage.setItem(KGK,JSON.stringify(kgst))}catch(e2){}}
+    kgRender();
+  });
+
+  /* Stopp/Safeword, Teasing-Karten, Keuschheitsstatus, Hardcore-Check */
+  var stopbox=document.getElementById('stopbox'),ssb=document.getElementById('stopshare');
+  document.getElementById('stopgo').addEventListener('click',function(){stopbox.hidden=!stopbox.hidden;limitbox.hidden=true;limitdone.hidden=true});
+  document.getElementById('stopclose').addEventListener('click',function(){stopbox.hidden=true});
+  ssb.addEventListener('click',function(){
+    var msg=(dm?'[Demo] ':'')+'Stopp. Wir machen eine Pause. Bitte lass uns danach in Ruhe darüber reden.';
+    if(navigator.share){navigator.share({text:msg}).catch(function(){})}
+    else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(msg).then(function(){ssb.textContent='Nachricht kopiert'},function(){})}
+  });
+
+  var TS=[['Sprachnachricht','Eine dominante oder verführerische Sprachnachricht schicken.'],
+    ['Bild','Ein provokantes Bild schicken. Es bleibt vertraulich.'],
+    ['Video','Ein Video schicken, das gezielt reizt und herausfordert.'],
+    ['Zweideutige Nachricht','Eine persönliche Nachricht mit Andeutungen schreiben.'],
+    ['Nähe und Distanz','Einen Tag Funkstille, danach wieder Aufmerksamkeit.'],
+    ['Fetisch-Anspielung','Gezielt mit einem bekannten Fetisch spielen, nur angedeutet.'],
+    ['Hinauszögern','Eine erhoffte Belohnung bewusst verschieben.'],
+    ['Teasing ohne Ende','Das Teasing beenden, ohne dass ein Orgasmus folgt.'],
+    ['Strenge Aufgabe','Eine Aufgabe stellen, zum Beispiel eine Schreibaufgabe oder eine tägliche Meldung.'],
+    ['Erpressung (Rollenspiel)','Eine erfundene Konsequenz andeuten. Keine echten Drohungen und keine echten Geheimnisse.']],
+    tsLast=-1,tsbox=document.getElementById('tsbox'),tscard=document.getElementById('tscard');
+  document.getElementById('tsgo').addEventListener('click',function(){tsbox.hidden=!tsbox.hidden});
+  document.getElementById('tsdraw').addEventListener('click',function(){
+    var i;do{i=rnd(0,TS.length-1)}while(i===tsLast);
+    tsLast=i;document.getElementById('tstype').textContent=TS[i][0];document.getElementById('tstext').textContent=TS[i][1];tscard.hidden=false;
+  });
+
+  var CSK='monatslos:v2:cs',cs={start:null,end:null},DRE=/^\d{4}-\d{2}-\d{2}$/,
+      cstat=document.getElementById('cstat'),csdate=document.getElementById('csdate'),cspw=document.getElementById('cspw'),csmsg=document.getElementById('csmsg');
+  try{if(!dm){var cj=JSON.parse(localStorage.getItem(CSK)||'null');if(cj)cs={start:DRE.test(cj.start||'')?cj.start:null,end:DRE.test(cj.end||'')?cj.end:null}}}catch(e){}
+  function pd(x){var q=x.split('-');return new Date(+q[0],+q[1]-1,+q[2])}
+  function fd(d){return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'})}
+  function dd(a,b){return Math.max(0,Math.round((b-a)/86400000))}
+  function renderCS(){
+    var n=new Date();n=new Date(n.getFullYear(),n.getMonth(),n.getDate());
+    if(cs.start&&cs.end)cstat.textContent='Erlaubnis ausdrücklich erteilt am '+fd(pd(cs.end))+'. Die Keuschheit dauerte '+dd(pd(cs.start),pd(cs.end))+' Tage.';
+    else if(cs.start)cstat.textContent='Die Keuschheit besteht fort. Seit dem '+fd(pd(cs.start))+' sind es '+dd(pd(cs.start),n)+' Tage. Es gibt kein festes Ende.';
+    else cstat.textContent='Es ist noch kein Beginn der Keuschheit eingetragen.';
+  }
+  function csAct(fn){
+    var v=cspw.value;
+    if(!v){csmsg.textContent='Bitte das Passwort eingeben.';return}
+    if(!(window.crypto&&crypto.subtle)){csmsg.textContent='In diesem Browser nicht möglich.';return}
+    sha('monatslos|'+v).then(function(h){
+      cspw.value='';
+      if(h!==HASH){csmsg.textContent='Falsches Passwort.';return}
+      csmsg.textContent=fn();renderCS();
+      if(!dm){try{localStorage.setItem(CSK,JSON.stringify(cs))}catch(e){}}
+    },function(){csmsg.textContent='In diesem Browser nicht möglich.'});
+  }
+  document.getElementById('csstart').addEventListener('click',function(){
+    if(!DRE.test(csdate.value)){csmsg.textContent='Bitte zuerst ein Datum wählen.';return}
+    csAct(function(){cs={start:csdate.value,end:null};return 'Gespeichert.'});
+  });
+  document.getElementById('csallow').addEventListener('click',function(){
+    csAct(function(){
+      if(!cs.start)return 'Es ist kein Beginn eingetragen.';
+      if(cs.end)return 'Die Erlaubnis ist schon eingetragen.';
+      var n=new Date();cs.end=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+      return 'Erlaubnis eingetragen.';
+    });
+  });
+  renderCS();
+
+  var hcc1=document.getElementById('hcc1'),hcc2=document.getElementById('hcc2'),hcs=document.getElementById('hcstart');
+  function hcchk(){hcs.disabled=!(hcc1.checked&&hcc2.checked)}
+  hcc1.addEventListener('change',hcchk);hcc2.addEventListener('change',hcchk);
 
   menu.addEventListener('click',function(e){
     var b=e.target.closest?e.target.closest('.choice'):null;
