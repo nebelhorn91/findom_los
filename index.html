@@ -86,6 +86,19 @@ canvas.gone{opacity:0;pointer-events:none}
 .ticket::before{inset:0;background:radial-gradient(circle at 15px 15px,var(--gold) 0 3px,transparent 3.5px),radial-gradient(circle at calc(100% - 15px) 15px,var(--gold) 0 3px,transparent 3.5px),radial-gradient(circle at 15px calc(100% - 15px),var(--gold) 0 3px,transparent 3.5px),radial-gradient(circle at calc(100% - 15px) calc(100% - 15px),var(--gold) 0 3px,transparent 3.5px)}
 .ticket::after{inset:6px;border:1.5px dashed var(--gold2);border-radius:14px}
 .choice{outline:1.5px dashed var(--gold2);outline-offset:-6px}
+.limitbar{margin-top:1.5rem}
+.limitbtn{padding:.65rem 1.8rem;border-radius:12px;border:1px solid var(--hot);background:transparent;color:var(--hot);font:inherit;font-weight:600;letter-spacing:.04em;cursor:pointer}
+#limitbox,#limitdone{margin:1rem auto 0;max-width:34ch;line-height:1.55}
+#limitbox p{margin:0 0 .6rem;font-size:.9rem;color:var(--muted)}
+#limitbox input{width:100%;padding:.65rem .8rem;border-radius:10px;border:1px solid var(--gold2);background:var(--plate);color:var(--ink);font:inherit;font-size:16px;text-align:center}
+#limitbox .go,#limitdone .go{margin-top:.6rem}
+#limitdone b{color:var(--hot)}
+.debtbox{margin:1.5rem auto 0;max-width:34ch;padding:1rem 1.1rem;border-radius:14px;border:1px solid var(--hot);background:var(--plate);text-align:left}
+.debtbox h3{margin:0 0 .5rem;font-family:"Cormorant Garamond",Georgia,serif;font-size:1.5rem;line-height:1.1;color:var(--hot);text-align:center}
+.debtbox ul{margin:0 0 .5rem;padding:0;list-style:none;font-size:.9rem;color:var(--muted)}
+.debtbox li{display:flex;justify-content:space-between;gap:1rem;padding:.15rem 0}
+.debtsum{margin:.25rem 0 .9rem;text-align:center}
+.debtsum b{color:var(--hot);font-weight:600}
 .tag{margin:.6rem auto 0;max-width:30ch;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:1.2rem;line-height:1.3;color:var(--gold)}
 .result .q{font-style:italic;color:var(--gold)}
 #demoentry{margin-top:.25rem}
@@ -172,6 +185,26 @@ html[data-hc] h1{color:var(--hot)}
   </div>
   <p class="result" id="result" hidden></p>
 
+  <div class="limitbar" id="limitbar">
+    <button type="button" class="limitbtn" id="limitgo">Limit</button>
+    <div id="limitbox" hidden>
+      <p>Sklave Tizian meldet sein Limit. Der Betrag, den er nicht zahlen kann, geht als Schulden in den nächsten Monat.</p>
+      <input id="limitamt" type="number" inputmode="numeric" min="1" step="1" placeholder="Betrag in €, der nicht gezahlt wird" aria-label="Nicht gezahlter Betrag in Euro">
+      <button type="button" class="go" id="limitok">Limit melden</button>
+    </div>
+    <div id="limitdone" hidden></div>
+  </div>
+  <div class="debtbox" id="debtbox" hidden>
+    <h3>Offene Schulden</h3>
+    <ul id="debtlist"></ul>
+    <p class="debtsum" id="debtsum"></p>
+    <div class="pw"><div class="pwrow">
+      <input id="debtpw" type="password" placeholder="Passwort" autocomplete="off" aria-label="Passwort zum Tilgen">
+      <button id="debtok" type="button">Tilgen</button>
+    </div>
+    <p class="pwmsg" id="debtmsg" role="status"></p></div>
+  </div>
+
   <div class="hcentry" id="hcentry">
     <button type="button" class="hcbtn" id="hcgo">Hardcore-Modus</button>
     <div id="hcbox" hidden>
@@ -206,7 +239,7 @@ html[data-hc] h1{color:var(--hot)}
       <li>die Zigarettenkosten</li>
     </ul>
     <p>Sie können Sklave Tizian jederzeit gemäß der CNC-Vereinbarung weiter melken. Voraussetzung ist, dass Sie ihn so erfolgreich teasen, dass er gar nicht anders will, als zu zahlen.</p>
-    <p>Ruft Sklave Tizian „Limit“, können nicht gezahlte Beträge als Schulden in den nächsten Monat übertragen werden.</p>
+    <p>Ruft Sklave Tizian „Limit“, können nicht gezahlte Beträge als Schulden in den nächsten Monat übertragen werden. Dafür gibt es auf dieser Seite den Button „Limit“.</p>
     <p>Werden die Schulden nicht getilgt, dürfen Sie Sklave Tizian nach Ihrem Ermessen bestrafen und etwas auf Ratenzahlung von ihm verlangen.</p>
     <p>Die Ratenzahlung ist unabhängig von der Höhe der Schulden. Ihre Gesamtsumme darf höher sein als die Schulden.</p>
     <p>Bei jedem Spiel steht zusätzlich der Hardcore-Modus zur Verfügung. Er darf nur gespielt werden, wenn Sie Sklave Tizian bestrafen, weil er richtig Scheiße gebaut hat, zum Beispiel weil er trotz Keuschhaltung abgespritzt hat.</p>
@@ -355,10 +388,57 @@ html[data-hc] h1{color:var(--hot)}
   function show(g){menu.hidden=g!=='menu';gS.hidden=g!=='scratch';gW.hidden=g!=='wheel';gD.hidden=g!=='dice';hcUI()}
   function finish(html){hint.hidden=true;resultEl.hidden=false;resultEl.innerHTML=html+'<span>'+THX+'</span><span class="q">'+RQ()+'</span>';hcUI()}
 
+  /* Limit-Button und Schulden */
+  var DEBTK='monatslos:v2:debts',debts=[],
+      limitgo=document.getElementById('limitgo'),limitbox=document.getElementById('limitbox'),limitamt=document.getElementById('limitamt'),
+      limitok=document.getElementById('limitok'),limitdone=document.getElementById('limitdone'),
+      debtbox=document.getElementById('debtbox'),debtlist=document.getElementById('debtlist'),debtsum=document.getElementById('debtsum'),
+      debtpw=document.getElementById('debtpw'),debtok=document.getElementById('debtok'),debtmsg=document.getElementById('debtmsg');
+  try{
+    if(!dm){var dj=localStorage.getItem(DEBTK);if(dj)debts=(JSON.parse(dj)||[]).filter(function(d){return d&&typeof d.a==='number'&&d.a>0})}
+  }catch(e){debts=[]}
+  function saveDebts(){if(dm)return;try{localStorage.setItem(DEBTK,JSON.stringify(debts))}catch(e){}}
+  function dTotal(){return debts.reduce(function(s,d){return s+d.a},0)}
+  function renderDebts(){
+    debtbox.hidden=!debts.length;
+    debtlist.innerHTML=debts.map(function(d){return '<li><span>'+String(d.l||'').replace(/[<>&]/g,'')+(d.h?' (Hardcore)':'')+'</span><span>'+eur(d.a)+'</span></li>'}).join('');
+    debtsum.innerHTML='Offene Schulden insgesamt: <b>'+eur(dTotal())+'</b>';
+  }
+  limitgo.addEventListener('click',function(){
+    limitbox.hidden=!limitbox.hidden;limitdone.hidden=true;
+    if(!limitbox.hidden){limitamt.value=(typeof st.amount==='number')?st.amount:'';limitamt.focus()}
+  });
+  limitok.addEventListener('click',function(){
+    var a=Math.floor(Number(limitamt.value));
+    if(!(a>=1&&a<=100000)){limitamt.focus();return}
+    debts.push({l:monthLabel,a:a,h:hc});
+    saveDebts();renderDebts();
+    var msg=(dm?'[Demo] ':'')+'Mistress Franzisca, Sklave Tizian meldet sein Limit. '+eur(a)+' kann er nicht zahlen, sie gehen als Schulden in den nächsten Monat. Offene Schulden insgesamt: '+eur(dTotal())+'.';
+    limitbox.hidden=true;limitdone.hidden=false;
+    limitdone.innerHTML='<b>Limit gemeldet.</b> '+eur(a)+' gehen als Schulden in den nächsten Monat.<br><button type="button" class="go" id="limitshare">Meldung teilen</button>';
+    var sb=document.getElementById('limitshare');
+    sb.addEventListener('click',function(){
+      if(navigator.share){navigator.share({text:msg}).catch(function(){})}
+      else if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(msg).then(function(){sb.textContent='Meldung kopiert'},function(){})}
+    });
+  });
+  function tryClear(){
+    var v=debtpw.value;
+    if(!v)return;
+    if(!(window.crypto&&crypto.subtle)){debtmsg.textContent='Tilgen ist in diesem Browser nicht möglich.';return}
+    sha('monatslos|'+v).then(function(h){
+      if(h===HASH){debts=[];saveDebts();renderDebts();debtpw.value='';debtmsg.textContent=''}
+      else{debtmsg.textContent='Falsches Passwort.';debtpw.value=''}
+    },function(){debtmsg.textContent='Tilgen ist in diesem Browser nicht möglich.'});
+  }
+  debtok.addEventListener('click',tryClear);
+  debtpw.addEventListener('keydown',function(e){if(e.key==='Enter')tryClear()});
+  renderDebts();
+
   /* Hardcore-Modus: eigenes Spiel nur bei Bestrafung, eigene Beträge bis 300 € */
   var LBLs=dm?(hc?'der Betrag im Hardcore-Demo':'der Betrag im Demo-Spiel'):hc?'der Betrag im Hardcore-Modus':'der Bonus für '+monthLabel,
       LBL=LBLs.charAt(0).toUpperCase()+LBLs.slice(1),
-      THX=hc?'Ihr Sklave bedankt sich bei Ihnen, sehr geehrte Mistress.':'Ihr Sklave bedankt sich bei Ihnen, Herrin.',
+      THX=hc?'Ihr Sklave bedankt sich bei Ihnen, sehr geehrte Mistress.':'Ihr Sklave bedankt sich bei Ihnen, Mistress.',
       hcentry=document.getElementById('hcentry'),hcbox=document.getElementById('hcbox'),hcback=document.getElementById('hcback');
   function hcUI(){hcback.hidden=!(hc&&!dm&&(!menu.hidden||!resultEl.hidden))}
   hcentry.hidden=hc||dm;
